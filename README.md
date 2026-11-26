@@ -34,7 +34,7 @@ Semester GPA = Σ(grade point × credits) ÷ Σ credits. CGPA applies the same f
 
 ## Install
 
-1. Open the [latest release]((https://github.com/ishraq-rasif/cgpa_tracker/blob/main/cgpa_tracker.apk)) on your phone.
+1. Open the [latest release](https://github.com/ishraq-rasif/cgpa_tracker/blob/main/cgpa_tracker.apk) on your phone.
 2. Download `app-debug.apk`.
 3. Open the file and allow installation from unknown sources if Android asks.
 
