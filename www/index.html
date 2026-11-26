@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CGPA Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EEF1F4;--surface:#FFFFFF;--ink:#101B2D;--muted:#5B6778;--line:#D5DBE3;
+  --panel:#0F1E40;--panel-ink:#E9EEF9;--panel-muted:#9DABC8;--hl:#F5B700;
+  --accent:#2347B5;--good:#157347;--bad:#B42318;--field:#F5F7FA;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A101D;--surface:#121B2E;--ink:#E8EDF5;--muted:#93A0B4;--line:#25324A;
+    --panel:#1A2C58;--panel-ink:#EEF2FB;--panel-muted:#A9B7D6;--hl:#FFC933;
+    --accent:#8FB0FF;--good:#4ADE80;--bad:#F87171;--field:#0D1626;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A101D;--surface:#121B2E;--ink:#E8EDF5;--muted:#93A0B4;--line:#25324A;
+  --panel:#1A2C58;--panel-ink:#EEF2FB;--panel-muted:#A9B7D6;--hl:#FFC933;
+  --accent:#8FB0FF;--good:#4ADE80;--bad:#F87171;--field:#0D1626;color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 48px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media (max-width:860px){.wrap{grid-template-columns:1fr}}
+h1{font:800 22px/1.1 var(--display);margin:0 0 2px}
+.sub{color:var(--muted);margin:0 0 16px}
+header{grid-column:1/-1}
+aside{display:grid;gap:16px;position:sticky;top:16px}
+@media (max-width:860px){aside{position:static}}
+.panel{background:var(--panel);color:var(--panel-ink);border-radius:14px;padding:20px}
+.panel .lbl{color:var(--panel-muted);font-size:13px}
+.big{font:800 72px/0.95 var(--display);color:var(--hl);letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:4px 0 12px}
+.row{display:flex;gap:20px;flex-wrap:wrap}
+.row b{display:block;font:600 20px var(--display);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font:700 16px var(--display);margin:0 0 10px}
+.hint{color:var(--muted);font-size:13px;margin:4px 0 0}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+input,select{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0;width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.res{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--field);border-left:4px solid var(--accent)}
+.res b{font:700 20px var(--display);font-variant-numeric:tabular-nums}
+.up{color:var(--good)}.down{color:var(--bad)}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.sem{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.sem-h{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sem-h .nm{font:700 17px var(--display);background:transparent;border-color:transparent;width:auto;flex:1 1 160px;padding:4px 6px}
+.sem-h .nm:hover,.sem-h .nm:focus{border-color:var(--line)}
+.gpa{font:800 26px var(--display);font-variant-numeric:tabular-nums;text-align:right;line-height:1}
+.gpa small{display:block;font:400 12px var(--body);color:var(--muted)}
+.crs{padding:8px 14px}
+.c{display:grid;grid-template-columns:1fr 64px 112px 32px;gap:8px;margin:6px 0}
+.c.hd{color:var(--muted);font-size:12px;margin:0}
+@media (max-width:520px){.c{grid-template-columns:1fr 54px 92px 28px}}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px}
+button:hover{border-color:var(--accent)}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] button.pri{color:#0A101D}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.pri{color:#0A101D}}
+button.x{padding:4px 0;color:var(--muted);line-height:1}
+.sem-f{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap}
+input:disabled,select:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent;border-color:transparent}
+select:disabled{appearance:none;-webkit-appearance:none}
+.sem.plan{border:2px dashed var(--accent)}
+.sem.plan .sem-h{background:var(--field)}
+.empty{text-align:center;color:var(--muted);padding:28px;border:1px dashed var(--line);border-radius:12px;margin-bottom:14px}
+.chart{overflow-x:auto}
+svg text{fill:var(--muted);font:11px var(--body)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:4px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CGPA tracker</h1>
+    <p class="sub">Your results are loaded. Add next semester’s subjects with expected grades to see the predicted GPA and CGPA.</p>
+  </header>
+
+  <aside>
+    <section class="panel" aria-live="polite">
+      <div class="lbl">Current CGPA</div>
+      <div class="big" id="cgpa">—</div>
+      <div class="row"><div><span class="lbl">Credits graded</span><b id="credits">0</b></div><div><span class="lbl">Semesters</span><b id="nsem">0</b></div></div>
+    </section>
+
+    <section class="card">
+      <h2>Semester trend</h2>
+      <div class="chart" id="chart"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Semester GPA</span><span><i class="sw" style="background:var(--hl)"></i>CGPA</span><span>Dashed: prediction</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Next semester prediction</h2>
+      <div class="res" id="predOut"></div>
+      <hr>
+      <label class="f">Target CGPA<input id="target" type="number" min="0" max="4" step="0.01" inputmode="decimal"></label>
+      <div class="res" id="targetOut"></div>
+      <p class="hint">Built from the subjects and expected grades you add under “Next semester”.</p>
+    </section>
+  </aside>
+
+  <main>
+    <div id="sems"></div>
+    <button class="pri" data-act="addSem">Add past semester</button>
+    <button data-act="reset" style="margin-left:8px">Reset to transcript</button>
+    <div id="plan" style="margin-top:22px"></div>
+    <p class="hint">Scale: A+ 4.00, A 3.75, A- 3.50, B+ 3.25, B 3.00, B- 2.75, C+ 2.50, C 2.25, D 2.00, F 0.00. Data stays in this browser.</p>
+  </main>
+</div>
+
+<script>
+const G={"A+":4,"A":3.75,"A-":3.5,"B+":3.25,"B":3,"B-":2.75,"C+":2.5,"C":2.25,"D":2,"F":0};
+const KEY="cgpa-tracker-v2";
+const uid=()=>Math.random().toString(36).slice(2,9);
+const C=(name,cr,g)=>({id:uid(),name,cr,g:g||""});
+const semName=i=>"Level "+(Math.floor(i/2)+1)+", Term "+(i%2+1);
+const newPlan=n=>({id:"plan",name:semName(n),courses:[C("",3,"")]});
+const seed=()=>({sems:[
+
+ {id:uid(),locked:true,name:"Level 1, Term 1",courses:[C("ARCH 108 Basic Design",1.5,"A+"),C("ARCH 118 Graphics for Planners",1.5,"A+"),C("HUM 159 English",2,"A-"),C("HUM 171 Microeconomics",3,"A+"),C("MATH 105 Mathematics-I",3,"A+"),C("PLAN 111 Human Settlements Development",3,"A"),C("PLAN 163 Engineering Survey and Cartography",3,"A+"),C("PLAN 164 Engineering Survey Fieldwork",1.5,"A+"),C("PLAN 196 Introduction to Computer Application",1.5,"A")]},
+ {id:uid(),locked:true,name:"Level 1, Term 2",courses:[C("CHEM 129 Basic Environmental Chemistry",2,"A+"),C("CSE 170 Introduction to Programming",2,"A+"),C("HUM 173 Macroeconomics",3,"A+"),C("MATH 107 Mathematics-II",3,"A-"),C("PLAN 106 Communication and Presentation Skills",3,"A+"),C("PLAN 113 Fundamentals of Planning",2,"A"),C("PLAN 166 Cartography Studio",1.5,"A"),C("PLAN 193 Statistics I",2,"A+")]},
+ {id:uid(),locked:true,name:"Level 2, Term 1",courses:[C("HUM 233 Sociology",3,"A+"),C("PLAN 204 Social and Physical Surveys",3,"A+"),C("PLAN 211 Urban Planning Principles",3,"A"),C("PLAN 213 Site Planning and Design",3,"A+"),C("PLAN 293 Statistics II",3,"A+"),C("PLAN 295 Introduction to Operations Research",3,"A+"),C("PLAN 298 Data Analytics",3,"A+")]},
+ {id:uid(),locked:true,name:"Level 2, Term 2",courses:[C("CSE 272 Database Management Sessional",1.5,"A+"),C("HUM 223 Public Finance",2,"A+"),C("HUM 263 Political Science and Local Government",3,"A+"),C("PLAN 214 Site Planning and Design Studio",3,"A+"),C("PLAN 215 Urban Planning Techniques",3,"A"),C("PLAN 263 Geographic Information System (GIS)",2,"A"),C("PLAN 282 Participatory Planning Studio",3,"A+"),C("WRE 215 Introduction to Water Resources Planning",3,"A")]}
+ ],plan:newPlan(4),target:3.95});
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let S=load();
+if(!S||!Array.isArray(S.sems)||!S.plan) S=seed();
+S.sems.forEach(s=>{if(s.locked===undefined)s.locked=true});
+
+const f4=n=>n==null||isNaN(n)?"—":n.toFixed(4);
+const f2=n=>n==null||isNaN(n)?"—":n.toFixed(2);
+const fc=n=>Number.isInteger(n)?String(n):n.toFixed(2).replace(/0$/,"");
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+const $=id=>document.getElementById(id);
+
+function semCalc(s){
+  let pts=0,cr=0,all=0;
+  for(const c of s.courses){const x=+c.cr||0;all+=x;if(c.g in G){pts+=G[c.g]*x;cr+=x}}
+  return {pts,cr,all,gpa:cr?pts/cr:null};
+}
+function totals(){
+  let pts=0,cr=0;const trend=[];
+  S.sems.forEach((s,i)=>{const k=semCalc(s);pts+=k.pts;cr+=k.cr;if(k.gpa!=null)trend.push({i,gpa:k.gpa,cgpa:pts/cr})});
+  return {pts,cr,cgpa:cr?pts/cr:null,trend};
+}
+const gradeOpts=(sel,ph)=>'<option value="">'+ph+'</option>'+Object.keys(G).map(g=>'<option'+(g===sel?' selected':'')+'>'+g+'</option>').join("");
+
+function section(s,isPlan){
+  const L=!isPlan&&s.locked,d=L?" disabled":"";
+  const head=isPlan?"":L?'<button data-act="unlock" title="Unlock to correct this semester">🔒 Unlock</button>':'<button class="x" data-act="delSem" aria-label="Remove semester" title="Remove semester">✕</button>';
+  return `<section class="sem${isPlan?" plan":""}${L?" locked":""}" data-s="${s.id}">
+    <div class="sem-h">
+      <input class="nm" data-f="semName" value="${esc(s.name)}" aria-label="Semester name"${d}>
+      <div class="gpa"><span id="sg-${s.id}">—</span><small id="sp-${s.id}"></small></div>
+      ${head}
+    </div>
+    <div class="crs">
+      <div class="c hd"><span>${isPlan?"Subject":"Course"}</span><span>Credits</span><span>${isPlan?"Expected":"Grade"}</span><span></span></div>
+      ${s.courses.map(c=>`
+      <div class="c" data-c="${c.id}">
+        <input data-f="cName" value="${esc(c.name)}" placeholder="${isPlan?"Subject name":"Course name"}" aria-label="Course name"${d}>
+        <input data-f="cCr" type="number" min="0" step="0.25" value="${c.cr}" aria-label="Credits" inputmode="decimal"${d}>
+        <select data-f="cG" aria-label="Grade"${d}>${gradeOpts(c.g,isPlan?"Select":"—")}</select>
+        ${L?"<span></span>":'<button class="x" data-act="delCourse" aria-label="Remove course">✕</button>'}
+      </div>`).join("")}
+    </div>
+    ${L?"":`<div class="sem-f">
+      <button data-act="addCourse">${isPlan?"Add subject":"Add course"}</button>
+      ${isPlan?'<button class="pri" data-act="commit">Move to results</button>':'<button data-act="lock">Lock semester</button>'}
+    </div>`}
+  </section>`;
+}
+function render(){
+  $("sems").innerHTML=S.sems.length?S.sems.map(s=>section(s,false)).join(""):'<div class="empty">No semesters yet. Add one to start.</div>';
+  $("plan").innerHTML='<h2 style="font:700 17px var(--display);margin:0 0 4px">Next semester</h2><p class="hint" style="margin:0 0 10px">Add each subject with the grade you expect. Nothing here counts toward your CGPA until you move it to results.</p>'+section(S.plan,true);
+  update();
+}
+
+function chart(t,pk){
+  const d=t.trend.slice();
+  if(pk.gpa!=null)d.push({i:S.sems.length,gpa:pk.gpa,cgpa:pk.cgpa,pred:true});
+  if(!d.length)return '<p class="hint">Grade a course to see the trend.</p>';
+  const W=320,H=120,b=18,n=d.length,sl=W/n,bw=Math.min(34,sl*.6);
+  const y=v=>H-b-(v/4)*(H-b-12);
+  let bars="",dots="",pts=[],lab="";
+  d.forEach((e,k)=>{
+    const cx=sl*k+sl/2,hh=H-b-y(e.gpa);
+    bars+=e.pred?`<rect x="${cx-bw/2}" y="${y(e.gpa)}" width="${bw}" height="${hh}" rx="3" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 2"><title>Predicted: ${f2(e.gpa)}</title></rect>`
+      :`<rect x="${cx-bw/2}" y="${y(e.gpa)}" width="${bw}" height="${hh}" rx="3" fill="var(--accent)" opacity=".85"><title>Semester ${e.i+1}: ${f2(e.gpa)}</title></rect>`;
+    pts.push(cx+","+y(e.cgpa));
+    dots+=`<circle cx="${cx}" cy="${y(e.cgpa)}" r="3.5" fill="var(--hl)" stroke="var(--surface)" stroke-width="1.5"><title>CGPA ${f4(e.cgpa)}</title></circle>`;
+    lab+=`<text x="${cx}" y="${H-4}" text-anchor="middle">${e.i+1}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Semester GPA and CGPA by semester">
+    <line x1="0" x2="${W}" y1="${y(4)}" y2="${y(4)}" stroke="var(--line)" stroke-dasharray="3 3"/><text x="0" y="${y(4)-3}">4.00</text>
+    ${bars}<polyline points="${pts.join(" ")}" fill="none" stroke="var(--hl)" stroke-width="2.5"/>${dots}${lab}</svg>`;
+}
+function nearest(g){const e=Object.entries(G).sort((a,b)=>a[1]-b[1]).find(([k,v])=>v>=g-1e-9);return e?e[0]:null}
+
+function update(){
+  const t=totals(),k=semCalc(S.plan);
+  $("cgpa").textContent=f4(t.cgpa);
+  $("credits").textContent=fc(t.cr);
+  $("nsem").textContent=S.sems.length;
+  S.sems.forEach(s=>{
+    const q=semCalc(s),g=$("sg-"+s.id),p=$("sp-"+s.id);
+    if(g){g.textContent=f2(q.gpa);p.textContent=q.cr?fc(q.cr)+" credits":""}
+  });
+  $("sg-plan").textContent=f2(k.gpa);
+  $("sp-plan").textContent=k.cr?"predicted · "+fc(k.cr)+" credits":"";
+
+  const pc=k.cr?(t.pts+k.pts)/(t.cr+k.cr):null;
+  $("chart").innerHTML=chart(t,{gpa:k.gpa,cgpa:pc});
+
+  if(k.cr>0){
+    const d=t.cgpa!=null?pc-t.cgpa:null;
+    $("predOut").innerHTML=`Semester GPA <b>${f2(k.gpa)}</b><br>CGPA would be <b>${f4(pc)}</b>`+(d!=null?` <span class="${d>=0?"up":"down"}">(${d>=0?"+":""}${d.toFixed(4)})</span>`:"")+(k.all>k.cr?`<br><span class="hint">${fc(k.all-k.cr)} credits have no grade yet and are left out.</span>`:"");
+  }else $("predOut").textContent="Add subjects and pick expected grades below.";
+
+  const tg=+S.target||0,cr=k.all;
+  let msg;
+  if(cr<=0||tg<=0)msg="Add next semester’s subjects and a target to see the GPA you need.";
+  else{
+    const P=t.pts,Cc=t.cr,need=(tg*(Cc+cr)-P)/cr;
+    if(need<=0)msg="You are already above this target. Any GPA keeps you there.";
+    else if(need>4+1e-9){
+      msg=`Not reachable with ${fc(cr)} credits. Straight 4.00 gives <b>${f4((P+4*cr)/(Cc+cr))}</b>.`;
+    }else msg=`GPA needed across ${fc(cr)} credits: <b>${f2(need)}</b>${nearest(need)?` (about ${nearest(need)} average)`:""}`;
+  }
+  $("targetOut").innerHTML=msg;
+  save();
+}
+
+document.addEventListener("input",e=>{
+  const t=e.target,f=t.dataset.f;
+  if(t.id==="target"){S.target=t.value;update();return}
+  if(!f)return;
+  const sid=t.closest("[data-s]")?.dataset.s;
+  const s=sid==="plan"?S.plan:S.sems.find(x=>x.id===sid);
+  if(!s)return;
+  const row=t.closest("[data-c]"),c=row&&s.courses.find(x=>x.id===row.dataset.c);
+  if(f==="semName")s.name=t.value;
+  else if(c){if(f==="cName")c.name=t.value;if(f==="cCr")c.cr=t.value;if(f==="cG")c.g=t.value}
+  update();
+});
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const a=b.dataset.act,sid=b.closest("[data-s]")?.dataset.s;
+  const s=sid==="plan"?S.plan:S.sems.find(x=>x.id===sid);
+  if(a==="addSem"){S.sems.push({id:uid(),locked:false,name:semName(S.sems.length),courses:[C("",3,"")]})}
+  else if(a==="delSem"&&s){if(!confirm("Remove "+(s.name||"this semester")+"?"))return;S.sems=S.sems.filter(x=>x!==s)}
+  else if(a==="addCourse"&&s){s.courses.push(C("",3,""))}
+  else if(a==="delCourse"&&s){const cid=b.closest("[data-c]").dataset.c;s.courses=s.courses.filter(x=>x.id!==cid)}
+  else if(a==="lock"&&s){s.locked=true}
+  else if(a==="unlock"&&s){if(!confirm("Unlock "+(s.name||"this semester")+" to correct it? Lock it again when done."))return;s.locked=false}
+  else if(a==="commit"){
+    const graded=S.plan.courses.filter(c=>c.g in G);
+    if(!graded.length){alert("Pick an expected grade for at least one subject first.");return}
+    if(graded.length<S.plan.courses.length&&!confirm("Subjects without a grade will be left out. Continue?"))return;
+    S.sems.push({id:uid(),locked:true,name:S.plan.name,courses:graded.map(c=>({...c,id:uid()}))});
+    S.plan=newPlan(S.sems.length);
+  }
+  else if(a==="reset"){if(!confirm("Replace everything with your four transcript semesters?"))return;const keep=S.target;S=seed();S.target=keep}
+  else return;
+  render();
+});
+
+$("target").value=S.target;
+render();
+</script>
+</body>
+</html>
